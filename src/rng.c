@@ -1,42 +1,35 @@
-/*
- * Copyright (C) Kris Kwiatkowski, Among Bytes LTD
- *
- * This program is free software; you can redistribute it and/or modify it
- * under the terms of the GNU General Public License as published by the
- * Free Software Foundation; either version 2 of the License, or (at your
- * option) any later version.  See <http://www.fsf.org/copyleft/gpl.txt>.
- *
- * This program is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of MERCHANTABILITY
- * or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU General Public License
- * for more details.
- *
- */
+// SPDX-FileCopyrightText: 2026 AmongBytes, Ltd.
+// SPDX-FileContributor: Kris Kwiatkowski <kris@amongbytes.com>
+// SPDX-License-Identifier: LicenseRef-Proprietary
 
-#include <libopencm3/stm32/rng.h>
 #include <stdint.h>
 
-int platform_get_random(void *out, unsigned len) {
-    union {
-        unsigned char aschar[4];
-        uint32_t asint;
-    } random;
+#include "stm32f2xx_hal_rcc.h"
 
-    uint8_t *obuf = (uint8_t *)out;
+/* xorshift32 state must be non-zero */
+static uint32_t xs32_state = 0xA5A5A5A5u;
 
-    while (len > 4) {
-        random.asint = rng_get_random_blocking();
-        *obuf++      = random.aschar[0];
-        *obuf++      = random.aschar[1];
-        *obuf++      = random.aschar[2];
-        *obuf++      = random.aschar[3];
-        len          -= 4;
+static inline void xorshift32_seed(uint32_t seed) {
+    if (!seed) {
+        seed = 0xA5A5A5A5u;
     }
-    if (len > 0) {
-        for (random.asint = rng_get_random_blocking(); len > 0; --len) {
-            *obuf++ = random.aschar[len - 1];
-        }
-    }
+    xs32_state = seed;
+}
 
-    return 0;
+uint32_t xorshift32_u32(void) {
+    uint32_t x = xs32_state;
+    x          ^= x << 13;
+    x          ^= x >> 17;
+    x          ^= x << 5;
+    xs32_state = x;
+    return x;
+}
+
+void setup_rng(void) {
+    uint32_t t    = SysTick->VAL;
+    uint32_t uid0 = *(volatile uint32_t *)0x1FFF7A10;
+    uint32_t uid1 = *(volatile uint32_t *)0x1FFF7A14;
+    uint32_t uid2 = *(volatile uint32_t *)0x1FFF7A18;
+    uint32_t s    = t ^ uid0 ^ (uid1 << 1) ^ (uid2 << 2);
+    xorshift32_seed(s);
 }

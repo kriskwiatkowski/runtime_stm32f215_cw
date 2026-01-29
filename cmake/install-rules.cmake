@@ -17,8 +17,7 @@ install(
 
 install(
     FILES
-        ${CMAKE_BINARY_DIR}/3rd/libopencm3/lib/libopencm3_stm32f2.a
-        ${CMAKE_SOURCE_DIR}/src/stm32f207zg.ld
+        ${CMAKE_SOURCE_DIR}/src/stm32f215ret6.ld
     DESTINATION
         ${CMAKE_INSTALL_LIBDIR})
 

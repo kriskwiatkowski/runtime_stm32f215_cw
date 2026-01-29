@@ -14,19 +14,43 @@
 
 #include <platform/platform.h>
 #include <platform/printf.h>
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 
 int main(void) {
-    platform_init(PLATFORM_CLOCK_MAX);
-    platform_sync();
-    size_t i = 0;
+    size_t                 i = 0;
     struct platform_attr_t a;
+    uint8_t                buf[32] = { 0 };
+    bool                   r;
 
+    platform_init(PLATFORM_CLOCK_MAX);
+
+    // Check if cycle counting works
     uint64_t t = platform_cpu_cyclecount();
     i++;
     t = platform_cpu_cyclecount() - t;
-    printf("\n Hello world %u %u.\n", (uint32_t)(t >> 32), (uint32_t)t);
+    printf("\n Hello world.\n");
+    printf("\n Cycle count: %llu.\n", t);
 
-    return i;
+    // Check getting a random number
+    platform_get_random(buf, sizeof(buf));
+    printf("RNG1: ");
+    for (i = 0; i < sizeof(buf); i++) {
+        printf("%02x", buf[i]);
+    }
+    printf("\n");
+
+    // Trigger up
+    a.attr[0] = PLATFORM_SCA_TRIGGER_HIGH;
+    a.n       = 1;
+    r         = platform_set_attr(&a);
+    printf("Trigger high set: %d\n", r ? 1 : 0);
+
+    a.attr[0] = PLATFORM_SCA_TRIGGER_LOW;
+    a.n       = 1;
+    r         = platform_set_attr(&a);
+    printf("Trigger low set: %d\n", r ? 1 : 0);
+
+    return 0;
 }

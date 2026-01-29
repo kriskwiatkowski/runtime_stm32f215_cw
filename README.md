@@ -12,10 +12,23 @@ cpack --preset stm32f2
 
 Libraries will be compiled and placed in the ``build/pack`` directory.
 
-
 ## Test program
 
 To run test program:
 ```
 st-flash --reset write out/stm32f2/pack/bin/hello.bin 0x8000000
+```
+
+## Flash to ChipWhisprer
+
+Enable uart output
+
+```
+python tools/cw_uart_init.py
+```
+
+Flash the binary
+
+```
+pyocd flash /home/kris/repos/ams/runtime_stm32f215/out/stm32f2/bin/hello.bin -t STM32F215RETx
 ```

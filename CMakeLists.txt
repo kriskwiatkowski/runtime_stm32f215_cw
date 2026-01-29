@@ -13,7 +13,7 @@ set(CMAKE_INSTALL_BINDIR bin)
 set(CMAKE_INSTALL_LIBDIR lib)
 set(CMAKE_INSTALL_SRCDIR src)
 set(CMAKE_INSTALL_INCLUDEDIR include/platform)
-set(LINKER_SCRIPT ${PROJECT_SOURCE_DIR}/src/stm32f207zg.ld)
+set(LINKER_SCRIPT ${PROJECT_SOURCE_DIR}/src/stm32f215ret6.ld)
 set(CMAKE_MODULE_PATH "${PROJECT_SOURCE_DIR}")
 
 include(GNUInstallDirs)
@@ -32,28 +32,16 @@ FetchContent_Declare(libopencm3_target
   SOURCE_DIR                 ${CMAKE_BINARY_DIR}/3rd/libopencm3
 )
 
-FetchContent_MakeAvailable(libopencm3_target)
-
-add_custom_command(
-    OUTPUT ${CMAKE_BINARY_DIR}/3rd/libopencm3/lib/libopencm3_stm32f2.a
-    COMMAND FP_FLAGS="-mfloat-abi=soft" CFLAGS='-fno-asynchronous-unwind-tables' CC=${CMAKE_C_COMPILER} make V=1 TARGETS='stm32/f2'
-    WORKING_DIRECTORY ${CMAKE_BINARY_DIR}/3rd/libopencm3
-    COMMENT "Building libopencm3")
-add_custom_target(libopencm3_target
-    DEPENDS ${CMAKE_BINARY_DIR}/3rd/libopencm3/lib/libopencm3_stm32f2.a)
-
-add_library(opencm3_stm32f2 STATIC IMPORTED GLOBAL)
-set_target_properties(opencm3_stm32f2 PROPERTIES
-    IMPORTED_LOCATION ${CMAKE_BINARY_DIR}/3rd/libopencm3/lib/libopencm3_stm32f2.a)
-add_dependencies(opencm3_stm32f2 libopencm3_target)
-
 # ---- Declare target library ----
-add_library(
-    ${RUNNER_TARGET} STATIC
-    src/handlers.c
-    src/init.c
+add_library(${RUNNER_TARGET} STATIC
+    src/printf.c
+    src/stm32f2_hal_lowlevel.c
+    src/stm32f2_hal.c
+    src/stm32f2_startup.S
+    src/stm32f2_sysmem.c
+    src/platform.c
     src/rng.c
-    src/printf.c)
+)
 
 target_sources(
     ${RUNNER_TARGET}
@@ -75,20 +63,19 @@ target_include_directories(
     ${RUNNER_TARGET}
     PUBLIC
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/inc>
-        $<INSTALL_INTERFACE:include>
+#        $<INSTALL_INTERFACE:include>
     PRIVATE
-        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/3rd/libopencm3/include>
-        $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/3rd/libopencm3/include>)
+        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src/CMSIS/core>
+        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src/CMSIS/device>
+        $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src/Legacy>)
+
+target_compile_definitions(${RUNNER_TARGET} PRIVATE -DSTM32F215RETx -DSTM32F215xx -DSTM32F2 -DSTM32 -DDEBUG)
 
 # This is needed to link the opencm3_stm32f2 library
 target_link_directories(
     ${RUNNER_TARGET} INTERFACE
-    $<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/3rd/libopencm3/lib>
+    #$<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/3rd/libopencm3/lib>
     $<INSTALL_INTERFACE:lib>)
-
-target_link_libraries(
-    ${RUNNER_TARGET} PUBLIC
-    opencm3_stm32f2)
 
 include(GenerateExportHeader)
 generate_export_header(
@@ -101,13 +88,6 @@ add_executable(
     hello
     app/hello.c)
 
-target_include_directories(
-    hello
-    PUBLIC
-    ${CMAKE_BINARY_DIR}/3rd/libopencm3/include)
-
-target_compile_definitions(hello PRIVATE -DSTM32F2)
-
 target_link_libraries(
     hello PRIVATE
     ${RUNNER_TARGET})
@@ -118,6 +98,7 @@ target_link_options(
     -Wl,--whole-archive $<TARGET_FILE_NAME:${RUNNER_TARGET}> -Wl,--no-whole-archive)
 
 target_postbuild_executable(hello ${CMAKE_INSTALL_BINDIR})
+target_compile_definitions(hello PRIVATE -DSTM32F215RETx -DSTM32F2 -DSTM32 -DDEBUG)
 
 include(cmake/install-rules.cmake)
 

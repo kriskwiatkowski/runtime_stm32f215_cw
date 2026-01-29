@@ -13,6 +13,7 @@
  *
  */
 
+#include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
 
@@ -20,24 +21,28 @@
 typedef enum {
     PLATFORM_CLOCK_MAX,
     //!< Sets the clock to max possible value
-    PLATFORM_CLOCK_USERSPACE
+    PLATFORM_CLOCK_USERSPACE,
     //!< Sets the CPU clock to 24Mhz (used for benchmarking)
+    PLATFORM_SCA_TRIGGER_HIGH,
+    //!< Sets the trigger pin high
+    PLATFORM_SCA_TRIGGER_LOW
+    //!< Sets the trigger pin low
 } platform_op_mode_t;
 
 /**
- * @brief Initializes whole STM32 platform.
+ * @brief Initializes STM32F2 platform.
  * @retval Always 0.
  */
 int platform_init(platform_op_mode_t a);
 
-// Structure for passign platform attributes
+// Structure for passing platform attributes
 struct platform_attr_t {
     uint32_t attr[4];
-    size_t n;
+    size_t   n;
 };
 
 // Set platform attribute.
-void platform_set_attr(const struct platform_attr_t *a);
+bool platform_set_attr(const struct platform_attr_t *a);
 
 // Returns current number of cycles on a clock.
 uint64_t platform_cpu_cyclecount(void);
