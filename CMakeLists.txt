@@ -4,7 +4,7 @@ include(FetchContent)
 set(RUNNER_TARGET stm32f2)
 project(
     ${RUNNER_TARGET}_runtime
-    VERSION 0.0.4.1
+    VERSION 0.0.4.2
     LANGUAGES C ASM)
 
 set(CMAKE_VERBOSE_MAKEFILE ON)
@@ -63,19 +63,24 @@ target_include_directories(
     ${RUNNER_TARGET}
     PUBLIC
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/inc>
-#        $<INSTALL_INTERFACE:include>
+        $<INSTALL_INTERFACE:include>
     PRIVATE
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src/CMSIS/core>
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src/CMSIS/device>
         $<BUILD_INTERFACE:${PROJECT_SOURCE_DIR}/src/Legacy>)
 
-target_compile_definitions(${RUNNER_TARGET} PRIVATE -DSTM32F215RETx -DSTM32F215xx -DSTM32F2 -DSTM32 -DDEBUG)
+target_compile_definitions(${RUNNER_TARGET}
+    PRIVATE
+    -DSTM32F215RETx -DSTM32F215xx -DSTM32F2 -DSTM32)
 
 # This is needed to link the opencm3_stm32f2 library
 target_link_directories(
     ${RUNNER_TARGET} INTERFACE
-    #$<BUILD_INTERFACE:${CMAKE_BINARY_DIR}/3rd/libopencm3/lib>
     $<INSTALL_INTERFACE:lib>)
+
+target_link_options(${RUNNER_TARGET} PUBLIC
+    "-T${LINKER_SCRIPT}"
+    -nostartfiles)
 
 include(GenerateExportHeader)
 generate_export_header(
@@ -90,15 +95,13 @@ add_executable(
 
 target_link_libraries(
     hello PRIVATE
-    ${RUNNER_TARGET})
-
-target_link_options(
-    hello PRIVATE
-    "-T${LINKER_SCRIPT}" -nostartfiles
-    -Wl,--whole-archive $<TARGET_FILE_NAME:${RUNNER_TARGET}> -Wl,--no-whole-archive)
+    -Wl,--whole-archive ${RUNNER_TARGET} -Wl,--no-whole-archive)
 
 target_postbuild_executable(hello ${CMAKE_INSTALL_BINDIR})
-target_compile_definitions(hello PRIVATE -DSTM32F215RETx -DSTM32F2 -DSTM32 -DDEBUG)
+
+target_compile_definitions(hello
+    PRIVATE
+    -DSTM32F215RETx -DSTM32F2 -DSTM32 -DDEBUG)
 
 include(cmake/install-rules.cmake)
 
