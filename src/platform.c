@@ -66,7 +66,7 @@ void SysTick_Handler(void) { ++k_systick_milliseconds; }
 /// I/O
 /// ############################
 
-char platform_getch(void) {
+char platform_getchar(void) {
     uint8_t d;
     while (HAL_UART_Receive(&UartHandle, &d, 1, 5000) != HAL_OK)
         ;
