@@ -18,7 +18,7 @@
             }
         },
         {
-            "name": "stm32f2",
+            "name": "stm32f215_cw",
             "inherits": "base",
             "displayName": "ARMv7-M Release",
             "cacheVariables": {
@@ -26,7 +26,7 @@
             }
         },
         {
-            "name": "stm32f2-minsizerel",
+            "name": "stm32f215_cw-minsizerel",
             "inherits": "base",
             "displayName": "ARMv7-M MinSizeRel",
             "cacheVariables": {
@@ -34,7 +34,7 @@
             }
         },
         {
-            "name": "stm32f2-reldebinfo",
+            "name": "stm32f215_cw-reldebinfo",
             "inherits": "base",
             "displayName": "ARMv7-M RelWithDebInfo",
             "cacheVariables": {
@@ -52,35 +52,35 @@
             ]
         },
         {
-            "name": "stm32f2",
-            "configurePreset": "stm32f2",
+            "name": "stm32f215_cw",
+            "configurePreset": "stm32f215_cw",
             "inherits": "base"
         },
         {
-            "name": "stm32f2-minsizerel",
-            "configurePreset": "stm32f2-minsizerel",
+            "name": "stm32f215_cw-minsizerel",
+            "configurePreset": "stm32f215_cw-minsizerel",
             "inherits": "base"
         },
         {
-            "name": "stm32f2-reldebinfo",
-            "configurePreset": "stm32f2-reldebinfo",
+            "name": "stm32f215_cw-reldebinfo",
+            "configurePreset": "stm32f215_cw-reldebinfo",
             "inherits": "base"
         }
     ],
     "packagePresets": [
         {
-            "name": "stm32f2",
-            "configurePreset": "stm32f2",
+            "name": "stm32f215_cw",
+            "configurePreset": "stm32f215_cw",
             "packageDirectory": "${sourceDir}/out/package/${presetName}"
         },
         {
-            "name": "stm32f2-minsizerel",
-            "configurePreset": "stm32f2-minsizerel",
+            "name": "stm32f215_cw-minsizerel",
+            "configurePreset": "stm32f215_cw-minsizerel",
             "packageDirectory": "${sourceDir}/out/package/${presetName}"
         },
         {
-            "name": "stm32f2-reldebinfo",
-            "configurePreset": "stm32f2-reldebinfo",
+            "name": "stm32f215_cw-reldebinfo",
+            "configurePreset": "stm32f215_cw-reldebinfo",
             "packageDirectory": "${sourceDir}/out/package/${presetName}"
         }
     ]
