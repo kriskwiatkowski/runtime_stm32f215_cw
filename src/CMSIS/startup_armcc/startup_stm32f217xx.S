@@ -29,7 +29,7 @@
 ;   <o> Stack Size (in Bytes) <0x0-0xFFFFFFFF:8>
 ; </h>
 
-Stack_Size		EQU     0x400
+Stack_Size		EQU     0x18000
 
                 AREA    STACK, NOINIT, READWRITE, ALIGN=3
 Stack_Mem       SPACE   Stack_Size
@@ -169,7 +169,7 @@ Reset_Handler    PROC
 ;        IMPORT  SystemInit
         IMPORT  __main
 
-;                 LDR     R0, = 
+;                 LDR     R0, =
 ;                 BLX     R0
                  LDR     R0, =__main
                  BX      R0
