@@ -52,3 +52,9 @@ int platform_get_random(void *out, unsigned len);
 
 // Improves benchmark results
 void platform_sync(void);
+
+// Get a character from the platform's input
+char platform_getchar(void);
+
+// Put a character to the platform's output
+void platform_putchar(char c);
